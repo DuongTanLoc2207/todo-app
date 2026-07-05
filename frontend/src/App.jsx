@@ -1,122 +1,168 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect, useCallback } from 'react';
+import { Container, Typography, Box, Stack, Avatar, Snackbar, Alert } from '@mui/material';
+import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
+import TodoForm from './components/TodoForm';
+import TodoList from './components/TodoList';
+import FilterBar from './components/FilterBar';
+import PaginationControl from './components/PaginationControl';
+import { getTodos, createTodo, updateTodo, updateTodoStatus, deleteTodo } from './services/todoApi';
+
+const PAGE_SIZE = 5;
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [todos, setTodos] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchText, setSearchText] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalItems: 0, limit: PAGE_SIZE });
+  const [editingTodo, setEditingTodo] = useState(null);
+  const [error, setError] = useState('');
+
+  const fetchTodos = useCallback(async () => {
+    const params = { page: currentPage, limit: PAGE_SIZE, sortBy: 'createdAt', sortOrder };
+    if (statusFilter !== 'all') params.status = statusFilter;
+    if (searchText) params.search = searchText;
+    return getTodos(params);
+  }, [statusFilter, searchText, currentPage, sortOrder]);
+
+  const handleStatusFilterChange = (value) => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+  };
+
+  const handleSearchTextChange = (value) => {
+    setSearchText(value);
+    setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    let ignore = false;
+
+    fetchTodos()
+      .then((res) => {
+        if (!ignore) {
+          setTodos(res.data.data);
+          setPagination(res.data.pagination);
+        }
+      })
+      .catch(() => {
+        if (!ignore) setError('Không thể tải danh sách công việc');
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [fetchTodos]);
+
+  const refreshTodos = () => {
+    fetchTodos()
+      .then((res) => {
+        setTodos(res.data.data);
+        setPagination(res.data.pagination);
+      })
+      .catch(() => setError('Không thể tải danh sách công việc'));
+  };
+
+  const handleCreate = async (data) => {
+    try {
+      await createTodo(data);
+      refreshTodos();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Không thể thêm công việc');
+    }
+  };
+
+  const handleUpdate = async (id, data) => {
+    try {
+      await updateTodo(id, data);
+      setEditingTodo(null);
+      refreshTodos();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Không thể cập nhật công việc');
+    }
+  };
+
+  const handleToggleStatus = async (id, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'pending' ? 'completed' : 'pending';
+      await updateTodoStatus(id, newStatus);
+      refreshTodos();
+    } catch {
+      setError('Không thể đổi trạng thái');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteTodo(id);
+      refreshTodos();
+    } catch {
+      setError('Không thể xóa công việc');
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+    <Container maxWidth="sm" sx={{ py: { xs: 4, sm: 6 } }}>
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 5 }}>
+        <Avatar
+          sx={{
+            bgcolor: 'primary.main',
+            width: 48,
+            height: 48,
+            boxShadow: '0 6px 16px rgba(91, 95, 239, 0.35)',
+          }}
         >
-          Count is {count}
-        </button>
-      </section>
+          <ChecklistRtlIcon fontSize="medium" />
+        </Avatar>
+        <Box>
+          <Typography variant="h4">Quản lý công việc</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Theo dõi và sắp xếp công việc của bạn mỗi ngày
+          </Typography>
+        </Box>
+      </Stack>
 
-      <div className="ticks"></div>
+      <Box sx={{ mb: 4 }}>
+        <TodoForm
+          key={editingTodo?._id || 'new'}
+          onSubmit={editingTodo ? (data) => handleUpdate(editingTodo._id, data) : handleCreate}
+          initialData={editingTodo}
+          onCancelEdit={() => setEditingTodo(null)}
+        />
+      </Box>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <Box sx={{ mb: 3 }}>
+        <FilterBar
+          statusFilter={statusFilter}
+          onStatusChange={handleStatusFilterChange}
+          searchText={searchText}
+          onSearchChange={handleSearchTextChange}
+          sortOrder={sortOrder}
+          onToggleSortOrder={() => setSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'))}
+        />
+      </Box>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <TodoList
+        todos={todos}
+        onEdit={setEditingTodo}
+        onDelete={handleDelete}
+        onToggleStatus={handleToggleStatus}
+      />
+
+      <PaginationControl
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={setCurrentPage}
+      />
+
+      <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')}>
+        <Alert severity="error" onClose={() => setError('')}>
+          {error}
+        </Alert>
+      </Snackbar>
+    </Container>
+  );
 }
 
-export default App
+export default App;

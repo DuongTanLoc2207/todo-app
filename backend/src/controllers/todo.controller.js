@@ -1,8 +1,10 @@
 const Todo = require('../models/Todo');
 
+const ALLOWED_SORT_FIELDS = ['createdAt', 'updatedAt', 'title', 'status'];
+
 exports.getAllTodos = async (req, res) => {
   try {
-    const { status, search } = req.query;
+    const { status, search, page = 1, limit = 5, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const filter = {};
 
     if (status && ['pending', 'completed'].includes(status)) {
@@ -13,8 +15,27 @@ exports.getAllTodos = async (req, res) => {
       filter.title = { $regex: search, $options: 'i' };
     }
 
-    const todos = await Todo.find(filter).sort({ createdAt: -1 });
-    res.status(200).json(todos);
+    const sortField = ALLOWED_SORT_FIELDS.includes(sortBy) ? sortBy : 'createdAt';
+    const sort = { [sortField]: sortOrder === 'asc' ? 1 : -1 };
+
+    const currentPage = Math.max(parseInt(page, 10) || 1, 1);
+    const pageSize = Math.max(parseInt(limit, 10) || 5, 1);
+    const skip = (currentPage - 1) * pageSize;
+
+    const [todos, totalItems] = await Promise.all([
+      Todo.find(filter).sort(sort).skip(skip).limit(pageSize),
+      Todo.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      data: todos,
+      pagination: {
+        currentPage,
+        totalPages: Math.ceil(totalItems / pageSize),
+        totalItems,
+        limit: pageSize,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch todos', error: error.message });
   }
