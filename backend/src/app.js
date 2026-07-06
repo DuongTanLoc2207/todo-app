@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const todoRoutes = require('./routes/todo.routes');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -12,5 +13,7 @@ app.use('/api/todos', todoRoutes);
 app.get('/', (req, res) => {
   res.json({ message: 'Todo API is running' });
 });
+
+app.use(errorHandler);
 
 module.exports = app;

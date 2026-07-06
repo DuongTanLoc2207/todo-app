@@ -40,6 +40,31 @@ describe('POST /api/todos', () => {
 
     expect(res.status).toBe(400);
   });
+
+  it('trả về 400 khi title là số thay vì string', async () => {
+    const res = await request(app).post('/api/todos').send({ title: 12345 });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Title must be a string');
+  });
+
+  it('trả về 400 khi title vượt quá 200 ký tự', async () => {
+    const res = await request(app)
+      .post('/api/todos')
+      .send({ title: 'a'.repeat(201) });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Title must not exceed 200 characters');
+  });
+
+  it('trả về 400 khi description vượt quá 1000 ký tự', async () => {
+    const res = await request(app)
+      .post('/api/todos')
+      .send({ title: 'Việc hợp lệ', description: 'a'.repeat(1001) });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Description must not exceed 1000 characters');
+  });
 });
 
 describe('GET /api/todos', () => {
@@ -108,6 +133,48 @@ describe('PUT /api/todos/:id', () => {
 
     expect(res.status).toBe(400);
   });
+
+  it('trả về 400 khi title là số thay vì string', async () => {
+    const todo = await Todo.create({ title: 'Cũ' });
+
+    const res = await request(app)
+      .put(`/api/todos/${todo._id}`)
+      .send({ title: 999 });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Title must be a string');
+  });
+
+  it('trả về 400 khi id không đúng định dạng ObjectId', async () => {
+    const res = await request(app)
+      .put('/api/todos/abc123')
+      .send({ title: 'Mới' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Invalid todo id format');
+  });
+
+  it('trả về 400 khi title vượt quá 200 ký tự', async () => {
+    const todo = await Todo.create({ title: 'Cũ' });
+
+    const res = await request(app)
+      .put(`/api/todos/${todo._id}`)
+      .send({ title: 'a'.repeat(201) });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Title must not exceed 200 characters');
+  });
+
+  it('trả về 400 khi description vượt quá 1000 ký tự', async () => {
+    const todo = await Todo.create({ title: 'Cũ' });
+
+    const res = await request(app)
+      .put(`/api/todos/${todo._id}`)
+      .send({ description: 'a'.repeat(1001) });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Description must not exceed 1000 characters');
+  });
 });
 
 describe('PATCH /api/todos/:id/status', () => {
@@ -131,6 +198,15 @@ describe('PATCH /api/todos/:id/status', () => {
 
     expect(res.status).toBe(400);
   });
+
+  it('trả về 400 khi id không đúng định dạng ObjectId', async () => {
+    const res = await request(app)
+      .patch('/api/todos/abc123/status')
+      .send({ status: 'completed' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Invalid todo id format');
+  });
 });
 
 describe('DELETE /api/todos/:id', () => {
@@ -149,5 +225,12 @@ describe('DELETE /api/todos/:id', () => {
     const res = await request(app).delete(`/api/todos/${nonExistentId}`);
 
     expect(res.status).toBe(404);
+  });
+
+  it('trả về 400 khi id không đúng định dạng ObjectId', async () => {
+    const res = await request(app).delete('/api/todos/abc123');
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Invalid todo id format');
   });
 });

@@ -37,6 +37,7 @@ function TodoForm({ onSubmit, initialData, onCancelEdit }) {
           helperText={titleError}
           fullWidth
           size="small"
+          inputProps={{ maxLength: 200 }}
         />
         <TextField
           label="Mô tả (tùy chọn)"
@@ -47,6 +48,7 @@ function TodoForm({ onSubmit, initialData, onCancelEdit }) {
           minRows={2}
           maxRows={4}
           size="small"
+          inputProps={{ maxLength: 1000 }}
           sx={{
             '& .MuiInputBase-root': {
               alignItems: 'center',
