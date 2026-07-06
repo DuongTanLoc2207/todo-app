@@ -1,0 +1,4 @@
+module.exports = {
+  TITLE_MAX_LENGTH: 200,
+  DESCRIPTION_MAX_LENGTH: 1000,
+};
