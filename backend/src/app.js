@@ -11,7 +11,7 @@ app.use(express.json());
 app.use('/api/todos', todoRoutes);
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Todo API is running' });
+  res.json({ message: 'API Todo đang hoạt động' });
 });
 
 app.use(errorHandler);

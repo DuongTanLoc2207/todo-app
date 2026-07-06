@@ -45,7 +45,7 @@ describe('POST /api/todos', () => {
     const res = await request(app).post('/api/todos').send({ title: 12345 });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Title must be a string');
+    expect(res.body.message).toBe('Tiêu đề phải là chuỗi ký tự');
   });
 
   it('trả về 400 khi title vượt quá 200 ký tự', async () => {
@@ -54,7 +54,7 @@ describe('POST /api/todos', () => {
       .send({ title: 'a'.repeat(201) });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Title must not exceed 200 characters');
+    expect(res.body.message).toBe('Tiêu đề không được vượt quá 200 ký tự');
   });
 
   it('trả về 400 khi description vượt quá 1000 ký tự', async () => {
@@ -63,7 +63,7 @@ describe('POST /api/todos', () => {
       .send({ title: 'Việc hợp lệ', description: 'a'.repeat(1001) });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Description must not exceed 1000 characters');
+    expect(res.body.message).toBe('Mô tả không được vượt quá 1000 ký tự');
   });
 });
 
@@ -142,7 +142,7 @@ describe('PUT /api/todos/:id', () => {
       .send({ title: 999 });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Title must be a string');
+    expect(res.body.message).toBe('Tiêu đề phải là chuỗi ký tự');
   });
 
   it('trả về 400 khi id không đúng định dạng ObjectId', async () => {
@@ -151,7 +151,7 @@ describe('PUT /api/todos/:id', () => {
       .send({ title: 'Mới' });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Invalid todo id format');
+    expect(res.body.message).toBe('Id công việc không đúng định dạng');
   });
 
   it('trả về 400 khi title vượt quá 200 ký tự', async () => {
@@ -162,7 +162,7 @@ describe('PUT /api/todos/:id', () => {
       .send({ title: 'a'.repeat(201) });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Title must not exceed 200 characters');
+    expect(res.body.message).toBe('Tiêu đề không được vượt quá 200 ký tự');
   });
 
   it('trả về 400 khi description vượt quá 1000 ký tự', async () => {
@@ -173,7 +173,7 @@ describe('PUT /api/todos/:id', () => {
       .send({ description: 'a'.repeat(1001) });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Description must not exceed 1000 characters');
+    expect(res.body.message).toBe('Mô tả không được vượt quá 1000 ký tự');
   });
 });
 
@@ -205,7 +205,7 @@ describe('PATCH /api/todos/:id/status', () => {
       .send({ status: 'completed' });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Invalid todo id format');
+    expect(res.body.message).toBe('Id công việc không đúng định dạng');
   });
 });
 
@@ -231,6 +231,6 @@ describe('DELETE /api/todos/:id', () => {
     const res = await request(app).delete('/api/todos/abc123');
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Invalid todo id format');
+    expect(res.body.message).toBe('Id công việc không đúng định dạng');
   });
 });
