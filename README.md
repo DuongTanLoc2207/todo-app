@@ -83,7 +83,18 @@ frontend/
 ### Yêu cầu
 
 - Node.js >= 18
-- Tài khoản MongoDB Atlas (hoặc dùng connection string mẫu do bạn cung cấp)
+- Tài khoản MongoDB Atlas (hoặc MongoDB cài đặt local)
+
+> Nếu chưa có MongoDB Atlas, có thể tạo miễn phí tại https://mongodb.com/cloud/atlas (tier M0).
+
+Các bước lấy MongoDB Atlas connection string:
+
+1. Đăng ký tài khoản miễn phí tại https://mongodb.com/cloud/atlas
+2. Tạo 1 cluster mới, chọn Free Tier (M0)
+3. Vào Database Access → Add New Database User, chọn "Autogenerate Secure Password", role "Read and write to any database" - lưu lại username/password
+4. Vào Network Access → Add IP Address → chọn "Allow Access from Anywhere" (0.0.0.0/0)
+5. Vào Database (Overview cluster) → bấm Connect → chọn Drivers → Node.js → copy connection string dạng mongodb+srv://...
+6. Thay `<username>`, `<password>` trong chuỗi vừa copy bằng thông tin đã tạo ở bước 3, thêm tên database vào sau `.net/` (ví dụ `.net/todoapp?...`)
 
 ### 1. Clone repo
 
@@ -114,6 +125,8 @@ npm run dev
 
 Backend sẽ chạy tại `http://localhost:5000`.
 
+> **Lưu ý:** Phải chạy Backend trước, đợi thấy log `MongoDB connected successfully` và `Server running on port 5000` rồi mới chạy Frontend.
+
 ### 3. Setup Frontend
 
 ```bash
@@ -127,6 +140,8 @@ Tạo file `.env` trong thư mục `frontend/` với nội dung:
 VITE_API_URL=http://localhost:5000/api/todos
 ```
 
+> Giá trị PORT trong `VITE_API_URL` phải khớp với `PORT` đã cấu hình ở `backend/.env`.
+
 Chạy frontend:
 
 ```bash
@@ -136,6 +151,11 @@ npm run dev
 ### 4. Truy cập ứng dụng
 
 Mở trình duyệt tại: **http://localhost:5173**
+
+### Xác nhận đã chạy đúng
+
+- Backend: log hiện đúng 2 dòng `MongoDB connected successfully` và `Server running on port 5000`.
+- Frontend: giao diện "Quản lý công việc" hiển thị bình thường, không báo lỗi kết nối tới API.
 
 ## Chạy bằng Docker (Backend)
 
