@@ -104,7 +104,7 @@ function App() {
 
   return (
     <Container maxWidth="sm" sx={{ py: { xs: 4, sm: 6 } }}>
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 5 }}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mb: 5 }}>
         <Avatar
           sx={{
             bgcolor: 'primary.main',

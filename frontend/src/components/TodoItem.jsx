@@ -1,6 +1,8 @@
 import { Card, CardContent, Checkbox, Typography, IconButton, Chip, Stack, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import dayjs from 'dayjs';
 
 function TodoItem({ todo, onEdit, onDelete, onToggleStatus }) {
   const isCompleted = todo.status === 'completed';
@@ -17,7 +19,7 @@ function TodoItem({ todo, onEdit, onDelete, onToggleStatus }) {
       }}
     >
       <CardContent sx={{ py: 2, px: 2.5, '&:last-child': { pb: 2 } }}>
-        <Stack direction="row" alignItems="flex-start" spacing={1.5}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'flex-start' }}>
           <Checkbox
             checked={isCompleted}
             onChange={() => onToggleStatus(todo._id, todo.status)}
@@ -40,20 +42,41 @@ function TodoItem({ todo, onEdit, onDelete, onToggleStatus }) {
               <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{ mt: 0.5 }}
+                sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}
               >
                 {todo.description}
               </Typography>
             )}
-            <Chip
-              label={isCompleted ? 'Hoàn thành' : 'Chưa hoàn thành'}
-              size="small"
+            <Box
               sx={{
                 mt: 1,
-                bgcolor: isCompleted ? 'completed.light' : 'pending.light',
-                color: isCompleted ? 'completed.contrastText' : 'pending.contrastText',
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                justifyContent: { sm: 'space-between' },
+                flexWrap: 'wrap',
+                gap: { xs: 1.5, sm: 1 },
+                mr: { xs: 0, sm: 2 },
               }}
-            />
+            >
+              <Chip
+                label={isCompleted ? 'Hoàn thành' : 'Chưa hoàn thành'}
+                size="small"
+                sx={{
+                  flexShrink: 0,
+                  bgcolor: isCompleted ? 'completed.light' : 'pending.light',
+                  color: isCompleted ? 'completed.contrastText' : 'pending.contrastText',
+                }}
+              />
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap', flexShrink: 0 }}
+              >
+                <AccessTimeIcon sx={{ fontSize: 14 }} />
+                Tạo lúc: {dayjs(todo.createdAt).format('DD/MM/YYYY HH:mm')}
+              </Typography>
+            </Box>
           </Box>
           <Stack direction="row" spacing={0.5}>
             <IconButton size="small" onClick={() => onEdit(todo)}>
