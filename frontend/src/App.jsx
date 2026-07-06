@@ -104,7 +104,11 @@ function App() {
 
   return (
     <Container maxWidth="sm" sx={{ py: { xs: 4, sm: 6 } }}>
-      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mb: 5 }}>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={2}
+        sx={{ alignItems: 'center', textAlign: { xs: 'center', sm: 'left' }, mb: 5 }}
+      >
         <Avatar
           sx={{
             bgcolor: 'primary.main',
@@ -116,7 +120,9 @@ function App() {
           <ChecklistRtlIcon fontSize="medium" />
         </Avatar>
         <Box>
-          <Typography variant="h4">Quản lý công việc</Typography>
+          <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+            Quản lý công việc
+          </Typography>
           <Typography variant="body2" color="text.secondary">
             Theo dõi và sắp xếp công việc của bạn mỗi ngày
           </Typography>
