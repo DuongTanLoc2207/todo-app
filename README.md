@@ -33,7 +33,8 @@
 - Axios
 
 **Testing**
-- Jest, Supertest, mongodb-memory-server
+- Backend: Jest, Supertest, mongodb-memory-server
+- Frontend: Vitest, Testing Library
 
 **DevOps**
 - Docker (backend)
@@ -46,6 +47,8 @@ backend/
 ├── src/
 │   ├── config/
 │   │   └── db.js              # Kết nối MongoDB
+│   ├── constants/
+│   │   └── todo.constants.js  # Gom TITLE_MAX_LENGTH, DESCRIPTION_MAX_LENGTH dùng chung
 │   ├── controllers/
 │   │   └── todo.controller.js # Xử lý logic CRUD
 │   ├── models/
@@ -68,10 +71,16 @@ frontend/
 │   │   ├── FilterBar.jsx      # Thanh tìm kiếm, lọc, sắp xếp
 │   │   ├── PaginationControl.jsx
 │   │   ├── TodoForm.jsx       # Form thêm/sửa todo
+│   │   ├── TodoForm.test.jsx  # Unit test validate + submit
 │   │   ├── TodoItem.jsx       # Một dòng công việc
+│   │   ├── TodoItem.test.jsx  # Unit test hiển thị trạng thái + dialog xóa
 │   │   └── TodoList.jsx       # Danh sách công việc
 │   ├── services/
 │   │   └── todoApi.js         # Gọi API bằng Axios
+│   ├── test/
+│   │   └── setup.js           # Setup chung cho Vitest (jest-dom matchers, cleanup)
+│   ├── utils/
+│   │   └── getErrorMessage.js # Helper lấy message lỗi từ response API
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── theme.js               # Custom theme cho MUI
@@ -171,12 +180,30 @@ Backend container sẽ chạy tại `http://localhost:5000`.
 
 ## Chạy Unit Test
 
+### Backend
+
 ```bash
 cd backend
 npm test
 ```
 
 Bộ test sử dụng **mongodb-memory-server** để khởi tạo một MongoDB instance tạm thời trong bộ nhớ, hoàn toàn độc lập với `MONGO_URI` thật. Vì vậy, việc chạy test **không ảnh hưởng** đến dữ liệu trên MongoDB Atlas.
+
+Hiện có **21 test case**, bao gồm CRUD, validate dữ liệu đầu vào, xử lý lỗi 400/404/500.
+
+### Frontend
+
+```bash
+cd frontend
+npm test
+```
+
+Bộ test sử dụng **Vitest** (kèm `jsdom` làm môi trường DOM giả lập). Dùng `npm run test:watch` để chạy ở chế độ theo dõi thay đổi (watch mode) khi phát triển.
+
+Hiện có **13 test case**, gồm:
+- `getErrorMessage.test.js`: xử lý lấy message lỗi từ response/network error
+- `TodoForm.test.jsx`: validate title rỗng, submit đúng dữ liệu, hiển thị giá trị khi sửa
+- `TodoItem.test.jsx`: hiển thị đúng trạng thái, luồng xác nhận xóa
 
 ## API Endpoints
 
@@ -196,3 +223,4 @@ Base URL: `/api/todos`
 - **Custom MUI theme**: giao diện sử dụng theme MUI tùy chỉnh (`frontend/src/theme.js`) với bảng màu, bo góc, typography riêng để tạo phong cách nhất quán thay vì dùng theme mặc định.
 - **Responsive design**: layout được xây dựng dựa trên hệ thống Grid/Flexbox của MUI, tự động điều chỉnh theo kích thước màn hình từ mobile đến desktop.
 - **Validate dữ liệu**: các trường bắt buộc (như `title`) và giá trị `status` hợp lệ được kiểm tra ở cả tầng model (Mongoose schema) lẫn tầng controller trước khi thao tác với database.
+- **Giới hạn độ dài tập trung**: `TITLE_MAX_LENGTH` và `DESCRIPTION_MAX_LENGTH` được định nghĩa 1 lần duy nhất tại `backend/src/constants/todo.constants.js`, import dùng chung cho cả tầng validate ở controller và tầng schema Mongoose (model), tránh trùng lặp giá trị giữa 2 nơi.
