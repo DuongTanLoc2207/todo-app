@@ -58,7 +58,7 @@ function FilterBar({
             }
           >
             <MenuItem value="all">Tất cả</MenuItem>
-            <MenuItem value="pending">Chưa xong</MenuItem>
+            <MenuItem value="pending">Chưa hoàn thành</MenuItem>
             <MenuItem value="completed">Hoàn thành</MenuItem>
           </Select>
         </FormControl>

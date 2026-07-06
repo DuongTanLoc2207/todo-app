@@ -6,6 +6,7 @@ import TodoList from './components/TodoList';
 import FilterBar from './components/FilterBar';
 import PaginationControl from './components/PaginationControl';
 import { getTodos, createTodo, updateTodo, updateTodoStatus, deleteTodo } from './services/todoApi';
+import { getErrorMessage } from './utils/getErrorMessage';
 
 const PAGE_SIZE = 5;
 
@@ -69,7 +70,7 @@ function App() {
       await createTodo(data);
       refreshTodos();
     } catch (err) {
-      setError(err.response?.data?.message || 'Không thể thêm công việc');
+      setError(getErrorMessage(err, 'Không thể thêm công việc'));
     }
   };
 
@@ -79,7 +80,7 @@ function App() {
       setEditingTodo(null);
       refreshTodos();
     } catch (err) {
-      setError(err.response?.data?.message || 'Không thể cập nhật công việc');
+      setError(getErrorMessage(err, 'Không thể cập nhật công việc'));
     }
   };
 
@@ -88,8 +89,8 @@ function App() {
       const newStatus = currentStatus === 'pending' ? 'completed' : 'pending';
       await updateTodoStatus(id, newStatus);
       refreshTodos();
-    } catch {
-      setError('Không thể đổi trạng thái');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Không thể đổi trạng thái'));
     }
   };
 
@@ -97,8 +98,8 @@ function App() {
     try {
       await deleteTodo(id);
       refreshTodos();
-    } catch {
-      setError('Không thể xóa công việc');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Không thể xóa công việc'));
     }
   };
 
