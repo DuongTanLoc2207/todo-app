@@ -1,4 +1,20 @@
-import { Card, CardContent, Checkbox, Typography, IconButton, Chip, Stack, Box } from '@mui/material';
+import { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  Checkbox,
+  Typography,
+  IconButton,
+  Chip,
+  Stack,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -6,6 +22,12 @@ import dayjs from 'dayjs';
 
 function TodoItem({ todo, onEdit, onDelete, onToggleStatus }) {
   const isCompleted = todo.status === 'completed';
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleConfirmDelete = () => {
+    onDelete(todo._id);
+    setConfirmOpen(false);
+  };
 
   return (
     <Card
@@ -82,12 +104,27 @@ function TodoItem({ todo, onEdit, onDelete, onToggleStatus }) {
             <IconButton size="small" onClick={() => onEdit(todo)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={() => onDelete(todo._id)}>
+            <IconButton size="small" onClick={() => setConfirmOpen(true)}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Stack>
         </Stack>
       </CardContent>
+
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>Xác nhận xóa</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Bạn có chắc muốn xóa công việc "{todo.title}" không? Hành động này không thể hoàn tác.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)}>Hủy</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Xóa
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 }
